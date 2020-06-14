@@ -1,0 +1,15 @@
+[package]
+name = "ctr_drbg"
+version = "0.1.0"
+authors = ["Emil Hesslow <hesslow@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+aes = "0.4"
+rand_core = "0.5"
+
+[dev-dependencies]
+ron = "0.6"
+serde = "1.0"
+hex = "0.4"
+rand = "0.7"
