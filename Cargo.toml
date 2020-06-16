@@ -2,6 +2,8 @@
 name = "rand_ctr_drbg"
 version = "0.1.0"
 authors = ["Emil Hesslow <hesslow@gmail.com>"]
+license = "MIT OR Apache-2.0"
+keywords = ["random", "rng", "aes"]
 edition = "2018"
 
 [dependencies]
