@@ -1,44 +1,33 @@
 use aes::block_cipher::{BlockCipher, NewBlockCipher, Key};
 use aes::block_cipher::generic_array::{
     typenum::{U16, Sum, Unsigned},
-    GenericArray, ArrayLength
+    GenericArray, ArrayLength,
 };
-use aes::{Aes128, Aes192, Aes256};
+use core::ops::Add;
 use rand_core::{RngCore, impls, Error};
 
-pub trait CtrDrbgTrait {
-    type EntropySize: ArrayLength<u8>;
-}
-
-impl CtrDrbgTrait for Aes128 {
-    type EntropySize = Sum<<Self as NewBlockCipher>::KeySize, U16>;
-}
-
-impl CtrDrbgTrait for Aes192 {
-    type EntropySize = Sum<<Self as NewBlockCipher>::KeySize, U16>;
-}
-
-impl CtrDrbgTrait for Aes256 {
-    type EntropySize = Sum<<Self as NewBlockCipher>::KeySize, U16>;
-}
-
-type EntropySize<B> = <B as CtrDrbgTrait>::EntropySize;
-
-// This doesn't work so that is why the CtrDrbgTrait is needed. Why the indirection solves it I have no idea
-// Maybe something to do with in NewBlockCipher KeySize is ArrayLength but in the 3 specific Aes classes they are U??.
-// type EntropySize<B> = Sum<<B as NewBlockCipher>::KeySize, U16>;
+type EntropySize<B> = Sum<<B as NewBlockCipher>::KeySize, U16>;
 
 type Entropy<B> = GenericArray<u8, EntropySize<B>>;
 type KeySize<B> = <B as NewBlockCipher>::KeySize;
 type BlockSize = U16;
 type Block = GenericArray<u8, BlockSize>;
 
-pub struct CtrDrbg<B> where B: BlockCipher<BlockSize = U16> + NewBlockCipher + CtrDrbgTrait, B::ParBlocks: ArrayLength<Block> {
+pub struct CtrDrbg<B>
+where B: BlockCipher<BlockSize = U16> + NewBlockCipher,
+    B::ParBlocks: ArrayLength<Block>,
+    <B as NewBlockCipher>::KeySize: ArrayLength<u8> + Add<U16>,
+    <<B as NewBlockCipher>::KeySize as Add<U16>>::Output: ArrayLength<u8> {
+
     ctx: B,
     ctr: Block,
 }
 
-impl<B> CtrDrbg<B> where B: BlockCipher<BlockSize = U16> + NewBlockCipher + CtrDrbgTrait, B::ParBlocks: ArrayLength<Block> {
+impl<B> CtrDrbg<B>
+where B: BlockCipher<BlockSize = U16> + NewBlockCipher,
+    B::ParBlocks: ArrayLength<Block>,
+    <B as NewBlockCipher>::KeySize: ArrayLength<u8> + Add<U16>,
+    <<B as NewBlockCipher>::KeySize as Add<U16>>::Output: ArrayLength<u8> {
 
     pub fn new(entropy: &Entropy<B>, pers: &Entropy<B>) -> CtrDrbg<B> {
         let key = Key::<B>::default();
@@ -109,7 +98,12 @@ impl<B> CtrDrbg<B> where B: BlockCipher<BlockSize = U16> + NewBlockCipher + CtrD
     }
 }
 
-impl<B> RngCore for CtrDrbg<B> where B: BlockCipher<BlockSize = U16> + NewBlockCipher + CtrDrbgTrait, B::ParBlocks: ArrayLength<Block> {
+impl<B> RngCore for CtrDrbg<B>
+where B: BlockCipher<BlockSize = U16> + NewBlockCipher,
+    B::ParBlocks: ArrayLength<Block>,
+    <B as NewBlockCipher>::KeySize: ArrayLength<u8> + Add<U16>,
+    <<B as NewBlockCipher>::KeySize as Add<U16>>::Output: ArrayLength<u8> {
+
     fn fill_bytes(&mut self, dest: &mut [u8]) {
         self.fill_bytes_impl(dest, None);
     }
