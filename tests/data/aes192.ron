@@ -1,0 +1,12 @@
+[
+    // no personalization string
+    // no additional input
+    TestCase(
+        derivation: false,
+        entropy_input: "f1ef7eb311c850e189be229df7e6d68f1795aa8e21d93504e75abe78f041395873540386812a9a2a",
+        personalization_string: "",
+        additional_input1: "",
+        additional_input2: "",
+        returned_bits: "6bb0aa5b4b97ee83765736ad0e9068dfef0ccfc93b71c1d3425302ef7ba4635ffc09981d262177e208a7ec90a557b6d76112d56c40893892c3034835036d7a69",
+    ),
+]

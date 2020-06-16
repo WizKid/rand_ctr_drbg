@@ -1,5 +1,5 @@
 [package]
-name = "ctr_drbg"
+name = "rand_ctr_drbg"
 version = "0.1.0"
 authors = ["Emil Hesslow <hesslow@gmail.com>"]
 edition = "2018"
